@@ -28,7 +28,6 @@ portalocker==2.5.1
 pyparsing==3.0.9
 python-dateutil==2.8.2
 pytz==2022.2.1
-pywin32==304
 PyYAML==6.0
 requests==2.18.4
 scipy==1.9.1
