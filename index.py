@@ -11,3 +11,5 @@ def index():
 def hello():
     return 'Camera Closed',closeDector() 
 
+if __name__ == '__main__':
+    app.run(debug=True)
