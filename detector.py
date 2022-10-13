@@ -20,7 +20,7 @@ age_Network = cv2.dnn.readNet(age_Model, age_Proto)
 gender_Network = cv2.dnn.readNet(gender_Model, gender_Proto)
 
 # vid = cv2.VideoCapture("test.mp4") # use this to load video from file
-vid = cv2.VideoCapture(0)
+
 padding = 20
 
 def getFaceBox(net, frame, conf_threshold=0.75):
@@ -43,20 +43,26 @@ def getFaceBox(net, frame, conf_threshold=0.75):
             bboxes.append([x1, y1, x2, y2])
             cv2.rectangle(frameOpencvDnn, (x1, y1), (x2, y2), (0, 255, 0), int(round(frameHeight / 150)), 8)
     return frameOpencvDnn, bboxes;
+
 gender=[]
 age=[]
 detected_faces= ""
+
 def getDetector():
+    global vid
+    vid = cv2.VideoCapture(0)
     global gender
     global age
     global detected_faces
+   
     x=True
     while x:
        
         ret, frame = vid.read()
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
-        small_frame = cv2.resize(frame, (0, 0), fx=0.9, fy=0.9)
+        small_frame = cv2.resize(frame, (0, 0), fx=0.5, fy=0.5)
+        
         frameFace, detected_faces = getFaceBox(face_Network, small_frame)
         for dface in detected_faces:
             face = small_frame[
@@ -74,11 +80,7 @@ def getDetector():
             age_Network.setInput(blob)
             agePreds = age_Network.forward()
             age.append(AGE_RANGES[agePreds[0].argmax()]);
-           # print(f'Gender:{gender}')
-           # print(f'Age: {age[1:-1]} years')
-            #print(f"Number of people: {len(detected_faces)}")
-            
-           # cv2.imshow("Age Gender Demo", frameFace)
+          
            
         
 
@@ -88,11 +90,14 @@ def closeDector():
         print(f'Age: {age[i]} years')
         print(f'Gender:{gender[i]}') 
         print('--------------');
-    vid.release()
-        
-        
-    cv2.destroyAllWindows()
+        vid.release()
        
+      
+cv2.destroyAllWindows()
+   
+   
+
+    
        
        
             #cv2.putText(frameFace, label, (dface[0], dface[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 255), 2, cv2.LINE_AA)

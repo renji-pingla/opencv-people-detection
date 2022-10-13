@@ -5,8 +5,7 @@ app = Flask(__name__)
 
 @app.route("/")
 def index():
-   return 'People Detection',getDetector()
-   
+   return 'People Detection',getDetector()   
 @app.route('/close')
 def hello():
     return 'Camera Closed',closeDector() 
