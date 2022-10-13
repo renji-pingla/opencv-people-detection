@@ -1,6 +1,6 @@
 # Detecting  people count,age and gender using opencv
 
-#Install opencv
+# Install opencv
  
   pip install opencv-python
   
@@ -8,7 +8,7 @@
 
 pip install Flask
 
-#Install gunicorn
+# Install gunicorn
 
 pip install gunicorn
 
