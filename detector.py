@@ -1,6 +1,18 @@
 from distutils.command.config import config
+from re import M, S
 import time
 import cv2
+from threading import Timer
+import csv 
+from datetime import datetime
+
+import os.path
+
+
+
+
+# global field_flag
+# field_flag = True
 
 face_Proto = "models/opencv_face_detector.pbtxt"
 face_Model = "models/opencv_face_detector_uint8.pb"
@@ -48,21 +60,38 @@ gender=[]
 age=[]
 detected_faces= ""
 
-def getDetector():
+totalCount=0
+# global start_date
+# now = datetime.now()
+# start_date = now.strftime("%Y-%m-%d %H:%M:%S")
+
+def openCamera():
+    global totalCount
     global vid
+
+    now = datetime.now()
+    today_date = now.strftime("%d")
+    delete_date = 1
+
+    try:
+        if int(today_date) == delete_date :
+            os.remove('people_records.csv')
+    except:
+        print('file does not exists')
+   
+       
+    
+   
     vid = cv2.VideoCapture(0)
     global gender
     global age
     global detected_faces
-   
     x=True
     while x:
        
         ret, frame = vid.read()
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
-        small_frame = cv2.resize(frame, (0, 0), fx=0.5, fy=0.5)
         
+        small_frame = cv2.resize(frame, (0, 0), fx=0.9, fy=0.9)
         frameFace, detected_faces = getFaceBox(face_Network, small_frame)
         for dface in detected_faces:
             face = small_frame[
@@ -79,21 +108,72 @@ def getDetector():
 
             age_Network.setInput(blob)
             agePreds = age_Network.forward()
-            age.append(AGE_RANGES[agePreds[0].argmax()]);
+            age.append(AGE_RANGES[agePreds[0].argmax()]); 
+            #print(f"Number of people: {len(detected_faces)}");
+            
+            totalCount=len(detected_faces);
+
+            print(f"Total Number of people= {totalCount}");
+            
+            now = datetime.now()
+            date_str = now.strftime("%Y-%m-%d")
+            time_str = now.strftime("%H:%M:%S")
+            
+            
+    
+            # field names 
+            fields = ['Date','Time','Total People'] 
+                
+            # data rows of csv file 
+            rows = [ [date_str, time_str, totalCount]] 
+                
+            # name of csv file 
+            filename = "people_records.csv"
+
+            file_exists = os.path.isfile('people_records.csv')
+            print(file_exists)
+                
+            # writing to csv file 
+            with open(filename, 'a') as csvfile: 
+                # creating a csv writer object 
+                csvwriter = csv.writer(csvfile) 
+                    
+                # writing the fields 
+                # if field_flag == True:
+                if not file_exists:
+                    csvwriter.writerow(fields) 
+                    # field_flag = False
+                    
+                # writing the data rows 
+                csvwriter.writerows(rows)
+            #closeCamera() function release the camera and after 30s it opens camera again and print value
+            closeCamera() 
+           
+            
+def closeCamera():
+    
+   
+    vid.release()
+    time.sleep(30) 
+    openCamera()
+           
+            
+            #for i in range(0,len(detected_faces)):
+                
+                # print(f'Age: {age[i]} years');
+                # print(f'Gender:{gender[i]}')
+                # print('--------------');
+
+   
+
+      
+#cv2.destroyAllWindows()
           
            
         
 
-def closeDector():  
-    print(f"Number of people: {len(detected_faces)}");
-    for i in range(0,len(detected_faces)):
-        print(f'Age: {age[i]} years')
-        print(f'Gender:{gender[i]}') 
-        print('--------------');
-        vid.release()
-       
-      
-cv2.destroyAllWindows()
+#def closeDector():  
+   
    
    
 
@@ -105,5 +185,11 @@ cv2.destroyAllWindows()
        # cv2.putText(frameFace, f"Number of people: {len(detected_faces)}", (40, 70), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2, cv2.LINE_AA, False)  # adjust coordrinates according to your camera resolution
 
 
-      
+# def readCsvFile():
+#     with open('university_records.csv', newline='', encoding='utf-8') as f: 
+# 	    reader = csv.reader(f) 
+# 	    for row in reader:  
+# 	        print(row) 
     
+def removeCsv():
+    os.remove('people_records.csv')
